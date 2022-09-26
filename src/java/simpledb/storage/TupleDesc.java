@@ -12,6 +12,8 @@ import java.util.NoSuchElementException;
  */
 public class TupleDesc implements Serializable {
 
+    public final TDItem[] desc;
+
     /**
      * A help class to facilitate organizing the information of each field
      */
@@ -44,8 +46,7 @@ public class TupleDesc implements Serializable {
      *         that are included in this TupleDesc
      */
     public Iterator<TDItem> iterator() {
-        // TODO: some code goes here
-        return null;
+        return Arrays.asList(this.desc).iterator();
     }
 
     private static final long serialVersionUID = 1L;
@@ -60,7 +61,10 @@ public class TupleDesc implements Serializable {
      *                be null.
      */
     public TupleDesc(Type[] typeAr, String[] fieldAr) {
-        // TODO: some code goes here
+        this.desc = new TDItem[typeAr.length];
+        for (int i = 0; i < typeAr.length; i++) {
+            this.desc[i] = new TDItem(typeAr[i], fieldAr[i]);
+        }
     }
 
     /**
@@ -71,15 +75,18 @@ public class TupleDesc implements Serializable {
      *               TupleDesc. It must contain at least one entry.
      */
     public TupleDesc(Type[] typeAr) {
-        // TODO: some code goes here
+        this.desc = new TDItem[typeAr.length];
+        //use null as unnamed field
+        for (int i = 0; i < typeAr.length; i++) {
+            this.desc[i] = new TDItem(typeAr[i], null);
+        }
     }
 
     /**
      * @return the number of fields in this TupleDesc
      */
     public int numFields() {
-        // TODO: some code goes here
-        return 0;
+        return this.desc.length;
     }
 
     /**
@@ -90,8 +97,11 @@ public class TupleDesc implements Serializable {
      * @throws NoSuchElementException if i is not a valid field reference.
      */
     public String getFieldName(int i) throws NoSuchElementException {
-        // TODO: some code goes here
-        return null;
+        //index needs to be less than the number of fields
+        if (i >= this.desc.length) {
+            throw new NoSuchElementException();
+        } 
+        return this.desc[i].fieldName;
     }
 
     /**
@@ -103,8 +113,11 @@ public class TupleDesc implements Serializable {
      * @throws NoSuchElementException if i is not a valid field reference.
      */
     public Type getFieldType(int i) throws NoSuchElementException {
-        // TODO: some code goes here
-        return null;
+        //index needs to be less than the number of fields
+        if (i >= this.desc.length) {
+            throw new NoSuchElementException();
+        } 
+        return this.desc[i].fieldType;
     }
 
     /**
@@ -115,8 +128,12 @@ public class TupleDesc implements Serializable {
      * @throws NoSuchElementException if no field with a matching name is found.
      */
     public int indexForFieldName(String name) throws NoSuchElementException {
-        // TODO: some code goes here
-        return 0;
+        for (int i = 0; i < this.desc.length; i++) {
+            if (this.desc[i].fieldName != null && this.desc[i].fieldName.equals(name)) {
+                return i;
+            }
+        }
+        throw new NoSuchElementException();
     }
 
     /**
@@ -124,8 +141,16 @@ public class TupleDesc implements Serializable {
      *         Note that tuples from a given TupleDesc are of a fixed size.
      */
     public int getSize() {
-        // TODO: some code goes here
-        return 0;
+        int size = 0;
+        for (int i = 0; i < this.desc.length; i++) {
+            if (this.desc[i].fieldType.equals(Type.INT_TYPE)) {
+                size = size + Type.INT_TYPE.getLen();
+            }
+            else if (this.desc[i].fieldType.equals(Type.STRING_TYPE)) {
+                size = size + Type.STRING_TYPE.getLen();
+            }
+        }
+        return size;
     }
 
     /**
@@ -137,8 +162,19 @@ public class TupleDesc implements Serializable {
      * @return the new TupleDesc
      */
     public static TupleDesc merge(TupleDesc td1, TupleDesc td2) {
-        // TODO: some code goes here
-        return null;
+
+        Type[] fieldTypes = new Type[td1.desc.length + td2.desc.length];
+        String[] fieldNames = new String[td1.desc.length + td2.desc.length];
+        for (int i = 0; i < td1.desc.length; i++) {
+            fieldNames[i] = td1.desc[i].fieldName;
+            fieldTypes[i] = td1.desc[i].fieldType;
+        }
+        int current = td1.desc.length;
+        for (int i = 0; i < td2.desc.length; i++) {
+            fieldNames[current + i] = td2.desc[i].fieldName;
+            fieldTypes[current + i] = td2.desc[i].fieldType;
+        }
+        return new TupleDesc(fieldTypes, fieldNames);
     }
 
     /**
@@ -152,14 +188,31 @@ public class TupleDesc implements Serializable {
      */
 
     public boolean equals(Object o) {
-        // TODO: some code goes here
-        return false;
+        if (o.getClass() != this.getClass()) {
+            return false;
+        } 
+
+        TupleDesc obj = (TupleDesc) o;
+        if (obj.desc.length != this.desc.length) {
+            return false;
+        } else {
+            for (int i = 0; i < this.desc.length; i++) {
+                if (obj.desc[i].fieldName != this.desc[i].fieldName || obj.desc[i].fieldType != this.desc[i].fieldType) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public int hashCode() {
         // If you want to use TupleDesc as keys for HashMap, implement this so
         // that equal objects have equals hashCode() results
-        throw new UnsupportedOperationException("unimplemented");
+        int value = 0;
+        for (int i = 0; i < this.desc.length; i++) {
+            value = value + i * (this.desc[i].fieldName.hashCode() + this.desc[i].fieldType.hashCode());
+        }
+        return value;
     }
 
     /**
@@ -171,6 +224,10 @@ public class TupleDesc implements Serializable {
      */
     public String toString() {
         // TODO: some code goes here
-        return "";
+        String tempString = "";
+        for (int i = 0; i < this.desc.length; i++) {
+            tempString = tempString + (this.desc[i].fieldName + "(" + this.desc[i].fieldType + ")" + "\n");
+        }
+        return tempString;
     }
 }
