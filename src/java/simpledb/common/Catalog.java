@@ -22,12 +22,18 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Catalog {
 
+    private ConcurrentHashMap<String, Integer> catalogNames;
+    private ConcurrentHashMap<Integer, String> catalogPrivateKeys;
+    private ConcurrentHashMap<Integer, DbFile> catalogFiles;
+
     /**
      * Constructor.
      * Creates a new, empty catalog.
      */
     public Catalog() {
-        // TODO: some code goes here
+        this.catalogNames = new ConcurrentHashMap<>();
+        this.catalogPrivateKeys = new ConcurrentHashMap<>();
+        this.catalogFiles = new ConcurrentHashMap<>();
     }
 
     /**
@@ -41,7 +47,18 @@ public class Catalog {
      * @param pkeyField the name of the primary key field
      */
     public void addTable(DbFile file, String name, String pkeyField) {
-        // TODO: some code goes here
+        int id = file.getId();
+        String newName = name;
+
+        if (this.catalogNames.containsValue(id)) {
+            this.catalogNames.remove(this.getTableName(id));
+            this.catalogNames.put(name, id);
+        }
+        if (!this.catalogNames.contains(name) && !this.catalogNames.containsValue(id)) {
+            this.catalogNames.put(name, id);
+        }
+        this.catalogPrivateKeys.put(this.catalogNames.get(newName), pkeyField);
+        this.catalogFiles.put(this.catalogNames.get(newName), file);
     }
 
     public void addTable(DbFile file, String name) {
@@ -66,8 +83,11 @@ public class Catalog {
      * @throws NoSuchElementException if the table doesn't exist
      */
     public int getTableId(String name) throws NoSuchElementException {
-        // TODO: some code goes here
-        return 0;
+        try {
+            return this.catalogNames.get(name);
+        } catch (Exception e) {
+            throw new NoSuchElementException("No table with the id exists");
+        }
     }
 
     /**
@@ -78,8 +98,11 @@ public class Catalog {
      * @throws NoSuchElementException if the table doesn't exist
      */
     public TupleDesc getTupleDesc(int tableid) throws NoSuchElementException {
-        // TODO: some code goes here
-        return null;
+        try {
+            return this.catalogFiles.get(tableid).getTupleDesc();
+        } catch (Exception e) {
+            throw new NoSuchElementException("No table with the id exists");
+        }
     }
 
     /**
@@ -90,30 +113,41 @@ public class Catalog {
      *                function passed to addTable
      */
     public DbFile getDatabaseFile(int tableid) throws NoSuchElementException {
-        // TODO: some code goes here
-        return null;
+        try {
+            return this.catalogFiles.get(tableid);
+        } catch (Exception e) {
+            throw new NoSuchElementException("No table with the id exists");
+        }
     }
 
     public String getPrimaryKey(int tableid) {
-        // TODO: some code goes here
-        return null;
+        try {
+            return this.catalogPrivateKeys.get(tableid);
+        } catch (Exception e) {
+            throw new NoSuchElementException("No table with the id exists");
+        }
     }
 
     public Iterator<Integer> tableIdIterator() {
-        // TODO: some code goes here
-        return null;
+        return this.catalogPrivateKeys.keys().asIterator();
     }
 
     public String getTableName(int id) {
-        // TODO: some code goes here
-        return null;
+        for (Map.Entry<String, Integer> entry: this.catalogNames.entrySet()) {
+            if (entry.getValue() == id) {
+                return entry.getKey();
+            }
+        }
+        throw new NoSuchElementException("No table with the id exists");
     }
 
     /**
      * Delete all tables from the catalog
      */
     public void clear() {
-        // TODO: some code goes here
+        this.catalogNames.clear();
+        this.catalogPrivateKeys.clear();
+        this.catalogFiles.clear();
     }
 
     /**
