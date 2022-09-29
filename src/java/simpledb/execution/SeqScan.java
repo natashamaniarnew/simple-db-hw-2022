@@ -19,6 +19,10 @@ import java.util.NoSuchElementException;
 public class SeqScan implements OpIterator {
 
     private static final long serialVersionUID = 1L;
+    public String tableAlias;
+    public int tableid;
+    public TransactionId tid;
+    public DbFileIterator dbiterator;
 
     /**
      * Creates a sequential scan over the specified table as a part of the
@@ -26,15 +30,22 @@ public class SeqScan implements OpIterator {
      *
      * @param tid        The transaction this scan is running as a part of.
      * @param tableid    the table to scan.
-     * @param tableAlias the alias of this table (needed by the parser); the returned
+     * @param tableAlias the alias of this table (needed by the parser); the
+     *                   returned
      *                   tupleDesc should have fields with name tableAlias.fieldName
-     *                   (note: this class is not responsible for handling a case where
-     *                   tableAlias or fieldName are null. It shouldn't crash if they
+     *                   (note: this class is not responsible for handling a case
+     *                   where
+     *                   tableAlias or fieldName are null. It shouldn't crash if
+     *                   they
      *                   are, but the resulting name can be null.fieldName,
      *                   tableAlias.null, or null.null).
      */
     public SeqScan(TransactionId tid, int tableid, String tableAlias) {
-        // TODO: some code goes here
+        this.tableAlias = tableAlias;
+        this.tableid = tableid;
+        this.tid = tid;
+        this.dbiterator = Database.getCatalog().getDatabaseFile(tableid).iterator(tid);
+
     }
 
     /**
@@ -42,30 +53,37 @@ public class SeqScan implements OpIterator {
      *         be the actual name of the table in the catalog of the database
      */
     public String getTableName() {
-        return null;
+        return Database.getCatalog().getTableName(tableid);
+
     }
 
     /**
      * @return Return the alias of the table this operator scans.
      */
     public String getAlias() {
-        // TODO: some code goes here
-        return null;
+        return this.tableAlias;
     }
 
     /**
      * Reset the tableid, and tableAlias of this operator.
      *
      * @param tableid    the table to scan.
-     * @param tableAlias the alias of this table (needed by the parser); the returned
+     * @param tableAlias the alias of this table (needed by the parser); the
+     *                   returned
      *                   tupleDesc should have fields with name tableAlias.fieldName
-     *                   (note: this class is not responsible for handling a case where
-     *                   tableAlias or fieldName are null. It shouldn't crash if they
+     *                   (note: this class is not responsible for handling a case
+     *                   where
+     *                   tableAlias or fieldName are null. It shouldn't crash if
+     *                   they
      *                   are, but the resulting name can be null.fieldName,
      *                   tableAlias.null, or null.null).
      */
     public void reset(int tableid, String tableAlias) {
-        // TODO: some code goes here
+        // reset iterator to beginning
+        this.tableAlias = tableAlias;
+        // update tupledesc 
+        this.dbiterator = Database.getCatalog().getDatabaseFile(tableid).iterator(tid);
+
     }
 
     public SeqScan(TransactionId tid, int tableId) {
@@ -73,41 +91,41 @@ public class SeqScan implements OpIterator {
     }
 
     public void open() throws DbException, TransactionAbortedException {
-        // TODO: some code goes here
+        this.dbiterator.open();
     }
 
     /**
      * Returns the TupleDesc with field names from the underlying HeapFile,
      * prefixed with the tableAlias string from the constructor. This prefix
      * becomes useful when joining tables containing a field(s) with the same
-     * name.  The alias and name should be separated with a "." character
+     * name. The alias and name should be separated with a "." character
      * (e.g., "alias.fieldName").
      *
      * @return the TupleDesc with field names from the underlying HeapFile,
      *         prefixed with the tableAlias string from the constructor.
      */
     public TupleDesc getTupleDesc() {
-        // TODO: some code goes here
-        return null;
+        // update td 
+        return Database.getCatalog().getDatabaseFile(this.tableid).getTupleDesc();
     }
 
     public boolean hasNext() throws TransactionAbortedException, DbException {
         // TODO: some code goes here
-        return false;
+        return dbiterator.hasNext();
     }
 
     public Tuple next() throws NoSuchElementException,
             TransactionAbortedException, DbException {
         // TODO: some code goes here
-        return null;
+        return dbiterator.next();
     }
 
     public void close() {
-        // TODO: some code goes here
+        dbiterator.close();
     }
 
     public void rewind() throws DbException, NoSuchElementException,
             TransactionAbortedException {
-        // TODO: some code goes here
+        dbiterator.rewind();
     }
 }
