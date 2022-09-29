@@ -1,0 +1,29 @@
+Name: Sejal Gupta
+Partner: Natasha Maniar
+Lab #1 Writeup
+
+The design and implementation process of the SimpleDB laboratory assignment required many hours of thought and problem solving between my partner and me. Here is the writeup of my perspective of the lab:
+
+Design Decisions
+The requirements for Lab #1 tasked us with the implementations of various classes. While we were provided specifications for the overarching classes, methods, and the respective interfaces, our team had to make strategic design decisions for the specific implementations of those classes. 
+In the Tuple class, we decided to represent the Fields of a Tuple object as a List of Fields. This was primarily to allow for O(1) time access to the Field at a specific index and provide an easy way to iterate over the given Fields. Similarly, in the TupleDesc class, we had a List of TDItems,  allowing us to easily compute a unique identifier for the object using the specific index and the hashcodes of the items.
+The Catalog class employs the use of ConcurrentHashMap datatypes for thread safety. In the specific implementation, there was not a real benefit to the Name to Id mapping; in actuality, we could have the reverse (with swapping of respective functions), and the Catalog class would still work.
+The slots in the HeapPage were determined using the bitwise information. Using the BigInteger class, we obtained the value and tested the bit of the mod 8 value of the index. We used mod 8 because there are 8 bits in a byte.
+We decided to create our own iterator classes for HeapPage and HeapFile, as there were specific constraints on the next() and hasNext() functions that we needed to take care of. Thus, we implemented the class with parameters to update / skip according to the values present in the data structure. This allowed for more flexibility on our end. Specifically, we defined inner variables to keep track of the page / position the iterator was at, so if there was an empty slot, we could surpass it to get the next page / position. 
+Lastly, SeqScan was pretty straightforward due to the constraints and detailed specifications. We mainly called methods from other classes to return or initiate longer procedures with dependencies on the classes we implemented earlier.
+
+Changes to the API
+We made no changes to the API.
+
+Missing / Incomplete elements
+While we attempted to implement all parts of the lab, we were unable to successfully complete the SeqScan portion of the assignment. We have implemented all the methods and classes to the best of our abilities. However, we were unable to pass all of the test cases for task 6 on the assignment handout.
+I believe this is partly due to the iterator in HeapFile. Additionally, I think the possibility of missing some edge cases in the other classes contributed to the failures in the last test. Natasha and I spent many hours trying to debug the SeqScan, but we were unfortunately unsuccessful in passing the test cases by the deadline.
+
+My Perspective of the Lab
+Last Saturday, I started the lab. While I would like to start the assignments earlier, I barely finished PSET #1 in time for the deadline. In total (Saturday, Sunday, Monday, Tuesday, and Wednesday), I spent over 22 hours on this lab. 
+There was definitely a learning curve using Java. For instance, I did spend most of the weekend debugging == vs. .equals() because I was just not aware of the difference between the two. 6.031 switched from Java to Typescript, so I haven’t coded in Java since 10th grade.
+However, I do think the lab was challenging. While I pay attention in class, go to office hours, and study using the additional resources, I spent an extensive amount of time debugging in areas that I didn’t need to. When I asked a TA in office hours, I was instructed to use a specific line or class to help solve the problem I was having, a line that I wouldn’t have been able to craft on my own. Also, some of the details of the exact implementation weren’t clear to me from lecture and the assignment. After completing the lab, I feel more confident about the internal structure of SimpleDB. 
+The concepts I found most challenging were related to the HeapFile structure and the transition between the disk to the BufferPool. While this is very similar to the caching system from 6.004, I am still hoping I can get a better picture and clarity on the given topics.
+
+Overall Thoughts
+In conclusion, Lab #1 was definitely interesting, thought provoking, and provided its own set of hurdles for my team. I learned a lot, and I am excited for the future labs in this course.
