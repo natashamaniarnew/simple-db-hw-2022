@@ -1,0 +1,30 @@
+Describe any design decisions you made. These may be minimal for Lab 1.
+- For TupleDescriptor I created an arraylist of td items which contain information on the column name and type of field. An arraylist instead of array would allow for modularity incase we want to add more fields. 
+- For Tuple I created an array of Fields since each tuple has a set number of columns based on its tuple descriptor as soon as its initialized. 
+- For Catalog I created 3 Concurrent hashmaps all mapping the id to file, name, and primary key. Even though there is repetition in the id having 3 hashmaps makes it faster for the queries in the class like getting name or getting file etc. 
+
+- For Bufferpool, I created a concurrent hashmap of pages to store a set number of pages allowed in the pool. The get page method would then add to that hashmap or read from it. 
+
+- For HeapPageId, I just stored the page id and table id as it is just an extension of PageId. For the hashcode I created 
+
+- For RecordId, I just stored the tuple id and pageid associated with that memory in disk. 
+
+- For HeapPage, the main design decision was creating the iterator class where I stored the current position (current slot that the iterator is at). Then for iterating through the tuples I incremented that based on if isslotused was true. 
+
+- For HeapFile, I stored the file, tuple descriptor and unique id. When reading a page I found the offset and read each byte until the end of the page. Then I converted that to a HeapPage. 
+For the iterator class I iterated through the pages while creating a page iterator each time we started at a new page. Then for each page iterator I iterated through the tuples in that page. I also kept track of whether the iterator is open or closed in a boolean variable open which makes sure hasnext and next methods fail if the iterator isn't open. 
+
+- For SeqScan, I used primarily the dbiterator methods to traverse through the tuples. 
+
+Discuss and justify any changes you made to the API.
+- no changes 
+
+Describe any missing or incomplete elements of your code.
+- Currently the sequential scan doesn't produce the correct tuples which probably is due to an incorrect implementation of HeapFile iterator. Additionally the alias for tuple descriptor isn't added. 
+
+
+Describe how long you spent on the lab, and whether there was anything you found particularly difficult or confusing.
+- I spent around 20 hours on the lab including debugging which took longer than expected. 
+There were a few aspects that felt confusing including the circular logic of the heapfiles and how to access pages through the catalog methods and tableid.
+The relationship between table ids and database files were confusing at first but made sense later in the lab during heapfile. 
+Additionally, the sequential scan was difficult 
